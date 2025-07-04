@@ -1,7 +1,7 @@
 services:
   - type: web
     name: agricare
-   runtime: php
+    runtime: php
     plan: free
     buildCommand: |
       composer install --optimize-autoloader --no-dev
