@@ -2,4 +2,4 @@ services:
   - type: web
     name: agricare
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: Dockerfile
