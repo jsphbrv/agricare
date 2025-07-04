@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: agricare-laravel
+    name: agricare
     env: php
     plan: free
     buildCommand: |
