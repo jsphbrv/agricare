@@ -1,9 +1,5 @@
 services:
   - type: web
     name: agricare
-    runtime: php
     plan: free
-    buildCommand: |
-      composer install --optimize-autoloader --no-dev
-      php artisan config:cache
-    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    dockerfilePath: ./Dockerfile
