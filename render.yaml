@@ -1,5 +1,6 @@
 services:
   - type: web
     name: agricare
+    runtime: docker
     plan: free
     dockerfilePath: Dockerfile
