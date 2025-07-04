@@ -1,31 +1,44 @@
+# Use official PHP image with Apache
 FROM php:8.2-apache
 
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /var/www/html
 
-# Copy Laravel files to container
+# Copy Laravel project files
 COPY . .
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
-
-# Set Apache to use Laravel's public directory as the web root
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
 # Install PHP extensions required by Laravel
 RUN apt-get update && apt-get install -y \
-    zip unzip libzip-dev libonig-dev libxml2-dev curl git \
+    zip unzip git curl libzip-dev libpng-dev libonig-dev libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql zip
+
+# Set correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Set Apache to use the public directory as DocumentRoot
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Add a <Directory> block for /public with AllowOverride and access rules
+RUN echo '<Directory "/var/www/html/public">\n\
+    Options Indexes FollowSymLinks\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>' > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Run Composer install
+# Install Laravel dependencies
 RUN composer install --optimize-autoloader --no-dev
 
 # Expose port 80
 EXPOSE 80
+
+# Start Apache
+CMD ["apache2-foreground"]
